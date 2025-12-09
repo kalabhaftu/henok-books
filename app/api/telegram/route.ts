@@ -30,7 +30,9 @@ export async function POST(req: NextRequest) {
 
 // 1. Start / Main Menu
 bot.command("start", async (ctx) => {
-    const chatId = ctx.chat.id;
+    const chatId = ctx.chat?.id;
+    if (!chatId) return;
+
     // Reset Session
     await prisma.botSession.upsert({
         where: { chatId: BigInt(chatId) },
@@ -60,7 +62,9 @@ bot.action("add_book", async (ctx) => {
 // 3. Handle Photo (Step 1 -> 2)
 bot.on("photo", async (ctx) => {
     try {
-        const chatId = ctx.chat.id;
+        const chatId = ctx.chat?.id;
+        if (!chatId) return;
+
         const photos = ctx.message.photo;
         const photoFileId = photos[photos.length - 1].file_id;
         const fileLink = await ctx.telegram.getFileLink(photoFileId);
@@ -102,7 +106,9 @@ bot.on("photo", async (ctx) => {
 
 // 4. Handle Text (Step 2 -> 3 -> Finish)
 bot.on("text", async (ctx) => {
-    const chatId = ctx.chat.id;
+    const chatId = ctx.chat?.id;
+    if (!chatId) return;
+
     const text = ctx.message.text;
 
     if (text.startsWith("/")) return; // Ignore commands
@@ -149,6 +155,35 @@ bot.on("text", async (ctx) => {
             parse_mode: "Markdown",
             reply_markup: { inline_keyboard: [[{ text: "➕ Add Another", callback_data: "add_book" }]] }
         });
+        return;
+    }
+
+    // EDIT HANDLERS
+    if (session.step === "EDIT_TITLE") {
+        const data = session.tempData as any;
+        await prisma.book.update({
+            where: { id: data.bookId },
+            data: { title: text }
+        });
+        await ctx.reply(`✅ Title updated to: *${text}*`, { parse_mode: "Markdown" });
+        await prisma.botSession.update({ where: { chatId: BigInt(chatId) }, data: { step: "IDLE" } });
+        return;
+    }
+
+    if (session.step === "EDIT_PRICE") {
+        const price = parseFloat(text);
+        if (isNaN(price)) {
+            await ctx.reply("❌ Invalid number.");
+            return;
+        }
+        const data = session.tempData as any;
+        await prisma.book.update({
+            where: { id: data.bookId },
+            data: { price: price }
+        });
+        await ctx.reply(`✅ Price updated to: *${price}*`, { parse_mode: "Markdown" });
+        await prisma.botSession.update({ where: { chatId: BigInt(chatId) }, data: { step: "IDLE" } });
+        return;
     }
 });
 
@@ -164,13 +199,66 @@ bot.action("list_books", async (ctx) => {
         await ctx.reply(`📖 *${b.title}*\n💰 ${b.price}\nStatus: ${b.status}`, {
             parse_mode: "Markdown",
             reply_markup: {
-                inline_keyboard: [[
-                    { text: "❌ Delete", callback_data: `delete_${b.id}` },
-                    { text: "🔄 Toggle Status", callback_data: `toggle_${b.id}` }
-                ]]
+                inline_keyboard: [
+                    [
+                        { text: "✏️ Edit", callback_data: `edit_${b.id}` },
+                        { text: "❌ Delete", callback_data: `delete_${b.id}` }
+                    ],
+                    [
+                        { text: "🔄 Toggle Status", callback_data: `toggle_${b.id}` }
+                    ]
+                ]
             }
         });
     }
+    await ctx.answerCbQuery();
+});
+
+// Edit Flow
+bot.action(/edit_(.+)/, async (ctx) => {
+    const bookId = ctx.match[1];
+    const chatId = ctx.chat?.id;
+    if (!chatId) return;
+
+    // Store Book ID in session to know what we are editing
+    await prisma.botSession.upsert({
+        where: { chatId: BigInt(chatId) },
+        update: { step: "EDIT_SELECT", tempData: { bookId } },
+        create: { chatId: BigInt(chatId), step: "EDIT_SELECT", tempData: { bookId } }
+    });
+
+    await ctx.reply("What would you like to edit?", {
+        reply_markup: {
+            inline_keyboard: [
+                [{ text: "🔤 Title", callback_data: `edit_field_title` }],
+                [{ text: "💰 Price", callback_data: `edit_field_price` }]
+            ]
+        }
+    });
+    await ctx.answerCbQuery();
+});
+
+bot.action("edit_field_title", async (ctx) => {
+    const chatId = ctx.chat?.id;
+    if (!chatId) return;
+
+    await prisma.botSession.update({
+        where: { chatId: BigInt(chatId) },
+        data: { step: "EDIT_TITLE" }
+    });
+    await ctx.reply("Please enter the new **Title**:", { parse_mode: "Markdown" });
+    await ctx.answerCbQuery();
+});
+
+bot.action("edit_field_price", async (ctx) => {
+    const chatId = ctx.chat?.id;
+    if (!chatId) return;
+
+    await prisma.botSession.update({
+        where: { chatId: BigInt(chatId) },
+        data: { step: "EDIT_PRICE" }
+    });
+    await ctx.reply("Please enter the new **Price**:", { parse_mode: "Markdown" });
     await ctx.answerCbQuery();
 });
 
@@ -205,7 +293,7 @@ bot.action("returns", async (ctx) => {
     await ctx.reply("Select book to return:", { reply_markup: { inline_keyboard: buttons } });
     await ctx.answerCbQuery();
 });
-bot.command("returns", async (ctx) => { /* Same logic as action, omitted to save space, but action covers menu */
+bot.command("returns", async (ctx) => {
     const rentedBooks = await prisma.book.findMany({ where: { status: "TAKEN" } });
     if (rentedBooks.length === 0) { await ctx.reply("No rented books."); return; }
     const buttons = rentedBooks.map(b => ([{ text: `Return: ${b.title}`, callback_data: `return_${b.id}` }]));
