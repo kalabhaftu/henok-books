@@ -10,6 +10,7 @@ interface Book {
     title: string;
     imageUrl: string;
     status: string;
+    price: number;
 }
 
 export function GridView({ books }: { books: Book[] }) {

@@ -18,20 +18,30 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={outfit.className}>
-        <div className="min-h-screen flex flex-col">
-          <header className="p-6 flex items-center justify-between border-b border-white/5">
-            <div className="container mx-auto max-w-7xl flex items-center justify-between">
+        <div className="min-h-screen flex flex-col bg-black text-white selection:bg-white/20">
+          {/* Global Header */}
+          <header className="sticky top-0 z-50 border-b border-white/5 bg-black/50 backdrop-blur-xl">
+            <div className="container mx-auto max-w-7xl px-6 h-16 flex items-center justify-between">
               <Logo />
-              <nav>
-                <span className="text-sm text-muted-foreground uppercase tracking-widest font-semibold text-[10px]">Premium Library</span>
+              <nav className="flex items-center gap-6">
+                <a href="#" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Collection</a>
+                <a href="#" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">How it Works</a>
+                <div className="h-4 w-px bg-white/10" />
+                <span className="text-[10px] uppercase tracking-widest font-bold text-emerald-500">Open</span>
               </nav>
             </div>
           </header>
+
           <main className="flex-1">
             {children}
           </main>
-          <footer className="p-6 text-center text-xs text-muted-foreground border-t border-white/5">
-            © {new Date().getFullYear()} Henok Books. All rights reserved.
+
+          <footer className="py-12 border-t border-white/5 mt-auto">
+            <div className="container mx-auto max-w-7xl px-6 text-center">
+              <p className="text-zinc-500 text-sm">
+                © {new Date().getFullYear()} Henok Books. All rights reserved.
+              </p>
+            </div>
           </footer>
         </div>
       </body>

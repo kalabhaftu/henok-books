@@ -9,6 +9,7 @@ interface Book {
     title: string;
     imageUrl: string;
     status: string;
+    price: number;
 }
 
 interface BookCardProps {
@@ -66,6 +67,11 @@ export function BookCard({ book, onRent }: BookCardProps) {
 
             <div className="space-y-1">
                 <h3 className="font-medium text-zinc-200 leading-tight group-hover:text-white transition-colors line-clamp-2">{book.title}</h3>
+                {book.price > 0 && (
+                    <p className="text-sm font-bold text-emerald-400">
+                        {book.price.toLocaleString()} ETB
+                    </p>
+                )}
             </div>
         </motion.div>
     );
