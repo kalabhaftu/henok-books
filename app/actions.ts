@@ -45,6 +45,7 @@ export async function reserveBook(prevState: any, formData: FormData) {
         const ADMIN_CHAT_ID = process.env.TELEGRAM_ADMIN_ID;
 
         if (ADMIN_CHAT_ID) {
+            console.log("Attempting to send notification to ADMIN_CHAT_ID:", ADMIN_CHAT_ID); // DEBUG LOG
             try {
                 // Formatting message with safety in mind (or use simple text if HTML is risk)
                 // Using HTML but escaping isn't standard in JS without a lib, so let's use carefully composed HTML
@@ -60,8 +61,13 @@ export async function reserveBook(prevState: any, formData: FormData) {
 
                 console.log("Admin notification sent successfully to", ADMIN_CHAT_ID);
 
-            } catch (notifyError) {
-                console.error("Failed to send Telegram notification (Check TELEGRAM_ADMIN_ID and Bot Token):", notifyError);
+            } catch (notifyError: any) {
+                console.error("Failed to send Telegram notification. Error Details:", {
+                    message: notifyError.message,
+                    description: notifyError.description, // Telegram specific
+                    code: notifyError.code, // Telegram specific
+                    adminId: ADMIN_CHAT_ID
+                });
             }
         } else {
             console.warn("TELEGRAM_ADMIN_ID not set. Notification skipped. Please set this env var in Vercel.");

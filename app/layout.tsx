@@ -45,9 +45,7 @@ export default function RootLayout({
 
             <footer className="py-12 border-t border-zinc-200 dark:border-white/5 mt-auto bg-zinc-100 dark:bg-zinc-900/50">
               <div className="container mx-auto max-w-7xl px-6 text-center">
-                <p className="text-zinc-500 text-sm">
-                  © {new Date().getFullYear()} Henok Books. All rights reserved.
-                </p>
+                {/* Copyright removed */}
               </div>
             </footer>
           </div>
