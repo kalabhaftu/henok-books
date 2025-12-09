@@ -56,7 +56,12 @@ bot.on("photo", async (ctx) => {
 
     try {
         const photos = ctx.message.photo;
-        const caption = ctx.message.caption || "Untitled Book";
+        const caption = ctx.message.caption;
+
+        if (!caption) {
+            await ctx.reply("❌ Please provide a Title for the book as a caption when sending the photo.");
+            return;
+        }
 
         // Get the largest photo
         const photoFileId = photos[photos.length - 1].file_id;
@@ -88,7 +93,7 @@ bot.on("photo", async (ctx) => {
         // Save to DB
         const book = await prisma.book.create({
             data: {
-                title: caption,
+                title: caption, // We checked it exists above
                 imageUrl: imageUrl,
                 status: "AVAILABLE"
             }
@@ -100,6 +105,17 @@ bot.on("photo", async (ctx) => {
         console.error(e);
         await ctx.reply("Failed to process book.");
     }
+});
+
+bot.command("help", async (ctx) => {
+    await ctx.reply(
+        "📚 *Henok Books Admin Bot*\n\n" +
+        "**Commands:**\n" +
+        "• Send a **Photo** with a **Caption** to add a new book.\n" +
+        "• /returns - List rented books to mark them as returned.\n" +
+        "• /help - Show this message.",
+        { parse_mode: "Markdown" }
+    );
 });
 
 bot.command("returns", async (ctx) => {

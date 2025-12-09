@@ -41,19 +41,22 @@ export async function reserveBook(prevState: any, formData: FormData) {
         });
 
         // 3. Notify Admin via Telegram
-        // We need the admin's chat ID. Usually, the bot sends to a specific chat.
-        // Since we don't have a configured admin ID in env yet, we might skip or try to broadcast if we knew it.
-        // For now, we'll try to send to a hardcoded ID or env var if it exists, otherwise just log.
+        // The admin ID should be set in environment variables
         const ADMIN_CHAT_ID = process.env.TELEGRAM_ADMIN_ID;
 
         if (ADMIN_CHAT_ID) {
-            await bot.telegram.sendMessage(
-                ADMIN_CHAT_ID,
-                `🔔 <b>New Reservation</b>\n\n📖 <b>Book:</b> ${updatedBook.title}\n👤 <b>User:</b> ${firstName} ${lastName}\n📞 <b>Phone:</b> ${phone}`,
-                { parse_mode: "HTML" }
-            );
+            try {
+                await bot.telegram.sendMessage(
+                    ADMIN_CHAT_ID,
+                    `🔔 <b>New Reservation</b>\n\n📖 <b>Book:</b> ${updatedBook.title}\n👤 <b>User:</b> ${firstName} ${lastName}\n📞 <b>Phone:</b> ${phone}`,
+                    { parse_mode: "HTML" }
+                );
+            } catch (notifyError) {
+                console.error("Failed to send Telegram notification:", notifyError);
+                // Don't fail the request, just log
+            }
         } else {
-            console.warn("TELEGRAM_ADMIN_ID not set. Notification skipped.");
+            console.warn("TELEGRAM_ADMIN_ID not set. Notification skipped. Please set this env var.");
         }
 
         revalidatePath("/");
