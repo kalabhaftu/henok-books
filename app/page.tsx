@@ -1,6 +1,5 @@
 import prisma from "@/lib/prisma";
 import { GridView } from "@/components/grid-view";
-import { SearchInput } from "@/components/search-input";
 
 export const dynamic = 'force-dynamic';
 
@@ -50,8 +49,6 @@ export default async function Home({ searchParams }: { searchParams: { query?: s
             The modern way to access physical books. Reserve instantly via our bot, pick up your copy, and pay per read.
           </p>
         </div>
-
-        <SearchInput />
 
         {/* Content */}
         {books.length > 0 ? (

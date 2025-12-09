@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 
 interface Book {
     id: string;
@@ -23,12 +22,11 @@ export function BookCard({ book, onRent }: BookCardProps) {
     return (
         <motion.div
             layoutId={`card-${book.id}`}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            whileHover={{ y: -5 }}
             className="group relative flex flex-col gap-3"
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.2 }}
         >
-            <div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-white/5 shadow-sm dark:shadow-2xl transition-all duration-300 group-hover:shadow-lg dark:group-hover:shadow-[0_0_40px_-10px_rgba(255,255,255,0.1)]">
+            <div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-white/5 shadow-sm dark:shadow-2xl">
                 {/* Status Badge */}
                 <div className="absolute top-3 right-3 z-10">
                     <div className={cn(
@@ -41,36 +39,40 @@ export function BookCard({ book, onRent }: BookCardProps) {
                     </div>
                 </div>
 
-                {/* Image */}
-                <Image
+                {/* Standard Image Tag for Speed/Simplicity */}
+                <img
                     src={book.imageUrl || "/placeholder-book.jpg"}
                     alt={book.title}
-                    fill
-                    className={cn("object-cover transition-transform duration-500 group-hover:scale-105", !isAvailable && "grayscale opacity-80 dark:opacity-60")}
+                    className={cn("w-full h-full object-cover transition-transform duration-500 group-hover:scale-105", !isAvailable && "grayscale opacity-80 dark:opacity-60")}
+                    loading="lazy"
                 />
 
-                {/* Overlay Gradient (Always visible but stronger on hover) */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                {/* Action Button (Visible on Hover if Available) */}
-                {isAvailable && (
-                    <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out">
-                        <button
-                            onClick={() => onRent(book)}
-                            className="w-full py-2.5 bg-white text-black font-bold rounded-lg shadow-lg hover:bg-zinc-100 active:scale-95 transition-all text-sm"
-                        >
-                            Rent Now
-                        </button>
-                    </div>
-                )}
+                {/* Overlay for depth */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </div>
 
-            <div className="space-y-1">
-                <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 leading-tight group-hover:text-black dark:group-hover:text-white transition-colors line-clamp-2">{book.title}</h3>
-                {book.price > 0 && (
-                    <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                        {book.price.toLocaleString()} ETB
-                    </p>
+            <div className="space-y-3 pt-2">
+                <div>
+                    <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 leading-tight line-clamp-2 min-h-[2.5rem]">{book.title}</h3>
+                    {book.price > 0 && (
+                        <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+                            {book.price.toLocaleString()} ETB
+                        </p>
+                    )}
+                </div>
+
+                {/* Rent Button - Always visible, full width, easy to tap */}
+                {isAvailable ? (
+                    <button
+                        onClick={() => onRent(book)}
+                        className="w-full py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-black font-semibold rounded-lg shadow-sm hover:shadow-md active:scale-95 transition-all text-sm"
+                    >
+                        Rent Now
+                    </button>
+                ) : (
+                    <button disabled className="w-full py-2.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 font-medium rounded-lg text-sm cursor-not-allowed">
+                        Unavailable
+                    </button>
                 )}
             </div>
         </motion.div>

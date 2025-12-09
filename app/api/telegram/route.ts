@@ -47,6 +47,7 @@ bot.command("start", async (ctx) => {
                 [{ text: "➕ Add Book", callback_data: "add_book" }],
                 [{ text: "📚 Manage Books", callback_data: "list_books" }],
                 [{ text: "↩️ Returns", callback_data: "returns" }],
+                [{ text: "🔔 Test Notification", callback_data: "test_notify" }],
                 [{ text: "❓ Help", callback_data: "help" }]
             ]
         }
@@ -304,6 +305,14 @@ bot.action(/return_(.+)/, async (ctx) => {
     await prisma.book.update({ where: { id: ctx.match[1] }, data: { status: "AVAILABLE", renterName: null, renterPhone: null } });
     await ctx.reply("✅ Book returned!");
     await ctx.deleteMessage();
+    await ctx.answerCbQuery();
+});
+
+bot.action("test_notify", async (ctx) => {
+    const chatId = ctx.chat?.id;
+    if (!chatId) return;
+
+    await ctx.reply(`🔔 **Test Notification**\n\nYour Chat ID is: \`${chatId}\`\n\nIf you see this, the bot can message you! Copy this ID to your Vercel Environment Variables as \`TELEGRAM_ADMIN_ID\` if it's different.`, { parse_mode: "Markdown" });
     await ctx.answerCbQuery();
 });
 
