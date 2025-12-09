@@ -43,7 +43,7 @@ export default function RootLayout({
               {children}
             </main>
 
-            <footer className="py-12 border-t border-zinc-200 dark:border-white/5 mt-auto bg-zinc-100 dark:bg-zinc-900/50">
+            <footer className="py-12 mt-auto">
               <div className="container mx-auto max-w-7xl px-6 text-center">
                 {/* Copyright removed */}
               </div>
