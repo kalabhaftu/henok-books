@@ -6,6 +6,13 @@ import { supabase } from "@/lib/supabase";
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN!);
 const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET;
 
+// Use Service Role Key for server-side operations (bypasses RLS)
+import { createClient } from "@supabase/supabase-js";
+const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
 // Middleware to verify secret if needed, or just standard webhook handling
 // For this implementation, we will trust the path or header if valid
 
@@ -62,7 +69,7 @@ bot.on("photo", async (ctx) => {
         const fileName = `${Date.now()}-${photoFileId}.jpg`;
 
         // Upload to Supabase
-        const { data: uploadData, error: uploadError } = await supabase
+        const { data: uploadData, error: uploadError } = await supabaseAdmin
             .storage
             .from("book-covers")
             .upload(fileName, buffer, {
