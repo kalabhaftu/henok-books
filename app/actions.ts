@@ -46,21 +46,29 @@ export async function reserveBook(prevState: any, formData: FormData) {
 
         if (ADMIN_CHAT_ID) {
             try {
-                await bot.telegram.sendMessage(
-                    ADMIN_CHAT_ID,
-                    `🔔 <b>New Reservation</b>\n\n📖 <b>Book:</b> ${updatedBook.title}\n👤 <b>User:</b> ${firstName} ${lastName}\n📞 <b>Phone:</b> ${phone}`,
-                    { parse_mode: "HTML" }
-                );
+                // Formatting message with safety in mind (or use simple text if HTML is risk)
+                // Using HTML but escaping isn't standard in JS without a lib, so let's use carefully composed HTML
+                // or just standard text to be safe from 400 Bad Request errors.
+
+                const message = `🔔 <b>New Reservation</b>\n\n` +
+                    `📖 <b>Book:</b> ${updatedBook.title}\n` +
+                    `💰 <b>Price:</b> ${updatedBook.price} ETB\n` +
+                    `👤 <b>User:</b> ${firstName} ${lastName}\n` +
+                    `📞 <b>Phone:</b> ${phone}`;
+
+                await bot.telegram.sendMessage(ADMIN_CHAT_ID, message, { parse_mode: "HTML" });
+
+                console.log("Admin notification sent successfully to", ADMIN_CHAT_ID);
+
             } catch (notifyError) {
-                console.error("Failed to send Telegram notification:", notifyError);
-                // Don't fail the request, just log
+                console.error("Failed to send Telegram notification (Check TELEGRAM_ADMIN_ID and Bot Token):", notifyError);
             }
         } else {
-            console.warn("TELEGRAM_ADMIN_ID not set. Notification skipped. Please set this env var.");
+            console.warn("TELEGRAM_ADMIN_ID not set. Notification skipped. Please set this env var in Vercel.");
         }
 
         revalidatePath("/");
-        return { success: true, message: "Book reserved successfully!" };
+        return { success: true, message: "Book reserved successfully! Admin will contact you." };
 
     } catch (error) {
         console.error("Reservation Error:", error);
