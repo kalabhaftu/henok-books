@@ -16,59 +16,46 @@ export default async function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-black text-white selection:bg-white/20">
+    <>
       {/* Background Gradients */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2" />
         <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] translate-x-1/2 translate-y-1/2" />
       </div>
 
-      <div className="relative z-10 container mx-auto max-w-7xl px-6 py-8">
-        {/* Header */}
-        <header className="flex justify-between items-center mb-20">
-          <div className="font-bold text-2xl tracking-tighter flex items-center gap-2">
-            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-black">
-              H
-            </div>
-            <span>Henok Books</span>
-          </div>
-          <div className="flex gap-4">
-            {/* Socials or other links could go here */}
-          </div>
-        </header>
-
+      <div className="relative z-10 container mx-auto max-w-7xl px-6 py-12">
         {/* Hero Section */}
-        <div className="mb-24 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-zinc-400 mb-6">
+        <div className="mb-24 mt-8 text-center relative">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-zinc-400 mb-6 backdrop-blur-md">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            Now Open for Reservations
+            Addis Ababa's Premium Library
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-white via-white/80 to-white/40">
-            Curated Knowledge<br />For the Modern Mind.
+
+          <h1 className="text-5xl md:text-8xl font-bold mb-8 tracking-tighter text-white">
+            Read. Return. <span className="text-zinc-600">Repeat.</span>
           </h1>
-          <p className="text-zinc-400 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed">
-            Access an exclusive collection of premium titles. Reserve instantly, read freely, and return when you're done.
+
+          <p className="text-zinc-400 max-w-xl mx-auto text-lg md:text-xl leading-relaxed">
+            The modern way to access physical books. Reserve instantly via our bot, pick up your copy, and pay per read.
           </p>
         </div>
 
-        {/* Filter / Search Bar (Visual Only for now) */}
-        <div className="sticky top-4 z-40 mb-10">
-          <div className="max-w-2xl mx-auto backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-2 flex items-center gap-3 shadow-2xl shadow-black/50">
-            <div className="pl-4 text-zinc-500">
-              <Search size={20} />
-            </div>
+        {/* Filter / Search Bar */}
+        <div className="sticky top-24 z-40 mb-10 w-full flex justify-center pointer-events-none">
+          <div className="pointer-events-auto backdrop-blur-xl bg-black/60 border border-white/10 rounded-full pl-4 pr-2 py-2 flex items-center gap-3 shadow-2xl shadow-black/50 w-full max-w-md transition-all focus-within:ring-2 focus-within:ring-white/10">
+            <Search size={18} className="text-zinc-500" />
             <input
               type="text"
-              placeholder="Search collection..."
-              className="bg-transparent border-none focus:outline-none text-white w-full placeholder:text-zinc-600 h-10"
+              placeholder="Search titles..."
+              className="bg-transparent border-none focus:outline-none text-white w-full placeholder:text-zinc-600 h-8 text-sm"
             />
           </div>
         </div>
 
-        {/* content */}
+        {/* Content */}
         {books.length > 0 ? (
           <GridView books={books} />
         ) : (
@@ -82,11 +69,7 @@ export default async function Home() {
             <p className="text-zinc-600 mt-2">Check back soon for new arrivals.</p>
           </div>
         )}
-
-        <footer className="mt-32 pt-10 border-t border-white/5 text-center text-zinc-600 text-sm pb-10">
-          &copy; {new Date().getFullYear()} Henok Books. All rights reserved.
-        </footer>
       </div>
-    </main>
+    </>
   );
 }
